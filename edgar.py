@@ -73,7 +73,7 @@ def download_and_extract_index(opt):
             # If arrived at 10-K section of forms
             arrived = False
 
-            for row in fin.readlines():
+            for row in fin:
                 if row.startswith("Form Type"):
                     fields_begin = [row.find("Form Type"),
                                     row.find("Company Name"),
@@ -114,7 +114,7 @@ def download_10k(opt):
             _, _, _, _, filename = row
             url = os.path.join(SEC_GOV_URL, filename).replace(
                 "\\", "/")
-            print('request 10k html - {}'.format(url))
+            print(f'request 10k html - {url}')
 
             try:
                 res = requests.get(url)
@@ -122,11 +122,11 @@ def download_10k(opt):
                 text = soup.get_text("\n")
                 fname = '_'.join(url.split('/')[-2:])
                 text_path = os.path.join(form10k_dir, fname)
-                print("writing 10k text to {}".format(text_path))
+                print(f"writing 10k text to {text_path}")
                 with open(text_path, 'w') as fout:
                     fout.write(text)
             except Exception as e:
-                print("download 10k failed - {} - {}".format(url, e))
+                print(f"download 10k failed - {url} - {e}")
 
 
 def extract_mda(opt):
@@ -137,7 +137,7 @@ def extract_mda(opt):
         os.makedirs(mda_dir)
 
     for form10k_file in tqdm(sorted(glob(os.path.join(form10k_dir, "*.txt")))):
-        print("extracting mda from form10k file {}".format(form10k_file))
+        print(f"extracting mda from form10k file {form10k_file}")
 
         # Read form 10k
         with open(form10k_file, 'r') as fin:
@@ -155,12 +155,12 @@ def extract_mda(opt):
         if mda:
             filename = os.path.basename(form10k_file)
             name, ext = os.path.splitext(filename)
-            mda_path = os.path.join(mda_dir, name + ".mda")
-            print("writing mda to {}".format(mda_path))
+            mda_path = os.path.join(mda_dir, f"{name}.mda")
+            print(f"writing mda to {mda_path}")
             with open(mda_path, 'w') as fout:
                 fout.write(mda)
         else:
-            print("extract mda failed - {}".format(form10k_file))
+            print(f"extract mda failed - {form10k_file}")
 
 
 def normalize_text(text):
